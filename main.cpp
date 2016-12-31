@@ -7,7 +7,8 @@ int main()
     lotofacil->readTable();
     lotofacil->montaTabelaDeJogosAleatoriosESeusAcertos();
     lotofacil->verificaAcertosDosPossiveisJogos();
-    lotofacil->ordenaLotofacil();
+    // lotofacil->ordenaLotofacil();
+    lotofacil->verificaJogosQueEstaoHaMaisTempoSemCair();
 
     // lotofacil->incidencia();
     // lotofacil->verificaPadrao();

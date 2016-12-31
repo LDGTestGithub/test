@@ -1,5 +1,6 @@
 #include "lotofacil.h"
 #define NUM_JOGOS_ATUAIS 1454
+#define NUM_POSSIVEIS_JOGOS 966
 
 void Lotofacil::readTable()
 {
@@ -28,16 +29,6 @@ void Lotofacil::readTable()
         for (int i = 0u; i < 15; i++) {
             file >> numeros_sorteados[i];
         }
-
-        // int mk = 0, numer = 0;
-        // for (int i = 0; mk < 15 || i < 25; i++) {
-        //     file >> numer;
-        //     // cout << numer << ": TellG: " << file.tellg() << endl;
-        //     if (numer > 0) {
-        //         numeros_sorteados[mk] = numer;
-        //         mk++;
-        //     }
-        // }
 
         cout << "Game: " << number_game << " Date: ";
         date->printDate();
@@ -99,7 +90,7 @@ void Lotofacil::montaTabelaDeJogosAleatoriosESeusAcertos()
     int END_FILE = file.tellg();
     file.seekg(0, file.beg);
 
-    while (count < 966) {
+    while (count < NUM_POSSIVEIS_JOGOS) {
         int *numerosJogados = new int[15];
         count++;
         Date *date = new Date();
@@ -595,6 +586,158 @@ void Lotofacil::ordenaLotofacil()
         output << endl;
 
     }
+
+
+}
+
+void Lotofacil::verificaJogosQueEstaoHaMaisTempoSemCair()
+{
+    // struct jogos
+    // {
+    //     unsigned numeroJogo = 0;
+    //     unsigned jogosSemCair = 0;
+    // };
+
+
+
+    structures::LinkedList<JogosSemCair*> *lista = new structures::LinkedList<JogosSemCair*>();
+
+    ifstream file;
+    file.open("Acertos.txt");
+    unsigned count = 0, numeroJogoSorteado;
+    unsigned resultado;
+    string date;
+
+    for (int i = 0; i < NUM_POSSIVEIS_JOGOS; i++) {
+        JogosSemCair *jogo = new JogosSemCair();
+        jogo->setNumeroJogo(i);
+        lista->push_back(jogo);
+    }
+
+    while (count < 634) {
+        file >> numeroJogoSorteado >> date;
+        for (int i = 0; i < lista->size(); i++) {
+            file >> resultado;
+            if (resultado == 0)
+                lista->at(i)->setJogosSemCair(lista->at(i)->getJogosSemCair() + 1);
+            else {
+                lista->at(i)->setJogosSemCair(0);
+            }
+        }
+        cout << "Count: " << count << endl;
+        count++;
+    }
+
+    int test = 0, jogoComMaiorTempoSemCair = 0;
+    for (int i = 0; i < lista->size(); i++) {
+        if (lista->at(i)->getJogosSemCair() > test) {
+            test = lista->at(i)->getJogosSemCair();
+            jogoComMaiorTempoSemCair = lista->at(i)->getNumeroJogo();
+        }
+        // cout << "Número Jogo: " << lista->at(i)->getNumeroJogo() << "\nNúmero de jogos sem cair: " << lista->at(i)->getJogosSemCair() << endl;
+    }
+
+    cout << "Até o jogo 500, o jogo com mais jogos sem cair é o jogo de número: " << jogoComMaiorTempoSemCair << "\ncom jogos sem cair: " << test << endl;
+    cout << "Números Jogados: ";
+    for (int i = 0; i < 15; i++) {
+        cout << listaDePossiveisJogos->at(jogoComMaiorTempoSemCair)->getNumerosSorteados()[i] << " ";
+    }
+
+    /* Testando o jogo 1971 para ver em quantas rodadas ele vai acertar */
+    bool acerto = false;
+    int numerosCertos = 0;
+    int *numerosJogados = new int[15];
+    int jogoGanho = 0;
+    numerosJogados = listaDePossiveisJogos->at(jogoComMaiorTempoSemCair)->getNumerosSorteados();
+
+    for (int i = 634; i < NUM_JOGOS_ATUAIS; i++) {
+        int *numerosSorteados = new int[15];
+        numerosSorteados = list_of_games->at(i)->getNumerosSorteados();
+        // for (int j = 0; j < 15; j++) {
+        //     if (numerosJogados[j] == numerosSorteados[j])
+        //         numerosCertos++;
+        //     else {
+        //         numerosCertos = 0;
+        //         break;
+        //     }
+        // }
+        for (int k = 0; k < 15; k++) {
+            for (int l = 0; l < 15; l++) {
+                if (numerosJogados[l] == numerosSorteados[k]) {
+                    numerosCertos++;
+                    break;
+                }
+            }
+        }
+        if (numerosCertos >= 11) {
+            cout << "\nJogo ganho: " << endl;
+            for (int m = 0; m < 15; m++) {
+                cout << list_of_games->at(i)->getNumerosSorteados()[m] << " ";
+            }
+            acerto = true;
+            jogoGanho = i;
+            numerosCertos = 0;
+            break;
+        }
+        numerosCertos = 0;
+    }
+
+    cout << "Jogo ganho: " << jogoGanho << endl;
+    cout << "Numeros sorteados: ";
+    int *numerosSorteados = new int[15];
+    numerosSorteados = list_of_games->at(jogoGanho)->getNumerosSorteados();
+    for (int i = 0; i < 15; i++) {
+        cout << numerosSorteados[i] << " ";
+    }
+
+    /*  ///////////////////////////////////////////////########################################## */
+
+    ofstream sorteiosNaoCoincidentes;
+    sorteiosNaoCoincidentes.open("Sorteios não coincidentes na linha 634.txt");
+
+    sorteiosNaoCoincidentes << "Jogo 634\n";
+    // for (int i = 0; i < lista->size(); i++) {
+    //     sorteiosNaoCoincidentes << i << " ";
+    // }
+    // sorteiosNaoCoincidentes << "\n634 ";
+    for (int i = 0; i < lista->size(); i++) {
+        sorteiosNaoCoincidentes << i << " " << lista->at(i)->getJogosSemCair() << endl;
+    }
+    sorteiosNaoCoincidentes.close();
+
+    // int arrayJogos = new int[16];
+    int arrayJogos[] = {651, 111, 809, 645, 130, 813, 34, 674, 274, 384, 951, 277, 205, 249, 427, 665};
+    int acertos = 0;
+    double numAcertos = 0.0;
+    cout << endl;
+
+    for (int i = 0; i < 16; i++) {
+        int *jogo = new int[15];
+        jogo = listaDePossiveisJogos->at(arrayJogos[i])->getNumerosSorteados();
+
+        for (int j = 634; j < NUM_JOGOS_ATUAIS; j++) {
+            for (int k = 0; k < 15; k++) {
+                for (int l = 0; l < 15; l++) {
+                    if (jogo[l] == list_of_games->at(j)->getNumerosSorteados()[k]) {
+                        acertos++;
+                        break;
+                    }
+                }
+            }
+            if (acertos >= 11) {
+                cout << "Jogo "  << arrayJogos[i] << " acertou na rodada " << j << " - " << j-634 <<
+                        " Acertos: " << acertos << endl;
+                numAcertos++;
+                acertos = 0;
+                break;
+            }
+            acertos = 0;
+        }
+    }
+
+    cout << endl << endl << "Taxa de acertos: " << numAcertos/16 << endl;
+
+    /*  ///////////////////////////////////////////////########################################## */
 
 
 }

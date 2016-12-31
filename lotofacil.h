@@ -6,6 +6,7 @@
 #include "linked_list.h"
 #include "combinacao.h"
 #include "comb15.h"
+#include "jogosSemCair.h"
 
 using namespace std;
 
@@ -20,6 +21,7 @@ public:
     void montaTabelaDeJogosAleatoriosESeusAcertos();
     void verificaAcertosDosPossiveisJogos();
     void ordenaLotofacil();
+    void verificaJogosQueEstaoHaMaisTempoSemCair();
     void bubbleSort(int *vetor);
 
     structures::LinkedList<Game*> *listaDePossiveisJogos = new structures::LinkedList<Game*>();
