@@ -4,11 +4,13 @@ int main()
 {
     Lotofacil *lotofacil = new Lotofacil();
 
-    lotofacil->readTable();
-    lotofacil->montaTabelaDeJogosAleatoriosESeusAcertos();
-    lotofacil->verificaAcertosDosPossiveisJogos();
-    // lotofacil->ordenaLotofacil();
-    lotofacil->verificaJogosQueEstaoHaMaisTempoSemCair();
+    lotofacil->leJogosSorteados();
+    lotofacil->lePossiveisJogos();
+    lotofacil->escreveAcertos();
+    // lotofacil->ordenaJogosSorteados();
+    lotofacil->verificaIrregularidadeAcertos();
+
+    delete lotofacil;
 
     // lotofacil->incidencia();
     // lotofacil->verificaPadrao();

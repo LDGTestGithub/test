@@ -14,6 +14,12 @@ class Lotofacil
 {
 public:
 
+    /*  Destrutor. */
+    ~Lotofacil() {
+        delete listaPossiveisJogos;
+        delete listaJogosSorteados;
+    }
+
     /*  Lê os jogos já sorteados pela Lotofácil de um arquivo em disco,
         formata cada jogo para um objeto do tipo Game, e os lista em uma
         lista encadeada.
@@ -21,7 +27,7 @@ public:
         Lista Encadeada de Jogos: listaJogosSorteados (variável global)
         Arquivo de Leitura: lotofacilOrdenada.txt
     */
-    void readTable();
+    void leJogosSorteados();
 
     /*  Similar ao método anterior, ele lê as combinações de possíveis jogos
         em disco, formata cada um para um objeto do tipo Game, e os lista em
@@ -30,7 +36,7 @@ public:
         Lista Encadeada de Jogos: listaPossiveisJogos (variável global)
         Arquivo de Leitura: PossiveisJogos.txt
     */
-    void montaTabelaDeJogosAleatoriosESeusAcertos();
+    void lePossiveisJogos();
 
     /*  Compara a Lista de Jogos Sorteados com a Lista de Possíveis Jogos, e
         escreve em disco uma tabela com o os acertos de cada possível jogo para
@@ -38,15 +44,15 @@ public:
 
         Arquivo de Escrita: Acertos.txt
     */
-    void verificaAcertosDosPossiveisJogos();
+    void escreveAcertos();
 
     /*  Método auxiliar para ordenar os números de jogos sorteados, utilizado
         para agilizar a ordenação e comparação dos Jogos Sorteados.
     */
-    void ordenaLotofacil();
+    void ordenaJogosSorteados();
 
 
-    void verificaJogosQueEstaoHaMaisTempoSemCair();
+    void verificaIrregularidadeAcertos();
 
 
 private:

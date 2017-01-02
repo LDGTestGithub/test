@@ -3,74 +3,82 @@
 #define NUM_JOGOS_ATUAIS 1454
 #define NUM_POSSIVEIS_JOGOS 966
 
-void Lotofacil::readTable()
+void Lotofacil::leJogosSorteados()
 {
     ifstream file;
+    /*  Abre arquivo File. */
     file.open("dados/lotofacilOrdenada.txt");
-    int line = 0;
+
+    /* Descobre a posição do fim do arquivo e adiciona em END_FILE */
     file.seekg(0, file.end);
     unsigned END_FILE = file.tellg();
     file.seekg(0, file.beg);
 
+    /*  Enquanto não chegar ao fim do arquivo, cada linha lida torna-se um
+        objeto do tipo Game e é adicionada na Lista de Jogos Sorteados. */
     while(file.tellg() < END_FILE - 2) {
-        cout << "Tellg: " << file.tellg() << endl;
+
+        /* Objeto do tipo Date, para ser inserida no Game */
         Date *date = new Date();
+        /* Array para armazenar os números sorteados */
         int *numeros_sorteados = new int[15];
-        unsigned number_game, number, count = 0;
+        /*  Recebe o número do jogo. */
+        unsigned number_game = 0;
+        /*  Recebe a data do jogo no formato de string. */
         string dateString;
 
+        /*  Escreve o número do jogo e sua data nas respectivas variáveis. */
         file >> number_game >> dateString;
 
-        /* Formata a data para o objeto */
+        /* Formata a data para o objeto. */
         formatDate(dateString, date);
 
-        /* Adiciona os números sorteados no array */
-
-        for (int i = 0u; i < 15; i++) {
+        /* Adiciona os números sorteados no array. */
+        for (int i = 0; i < 15; i++) {
             file >> numeros_sorteados[i];
         }
 
-        cout << "Game: " << number_game << " Date: ";
-        date->printDate();
-        cout << endl;
-        for (int j = 0u; j < 15; j++)
-            cout << numeros_sorteados[j] << " ";
-        cout << endl;
-
+        /*  Cria um objeto Game com os seus parâmetros retirados do arquivo. */
         Game *game = new Game(number_game, numeros_sorteados, date);
+        /*  Insere o jogo na Lista de Jogos Sorteados. */
         listaJogosSorteados->push_back(game);
     }
-    cout << "ListSize = " << listaJogosSorteados->size() << endl;
+
+    /*  Fecha o arquivo utilizado. */
     file.close();
 }
 
-void Lotofacil::montaTabelaDeJogosAleatoriosESeusAcertos()
+void Lotofacil::lePossiveisJogos()
 {
+    /*  numeroJogo recebe o número do jogo, sendo incrementado a medida que o
+        laço while percorre o arquivo de Possíveis Jogos.   */
     int numeroJogo = 0;
-    string dataString = "02/03/04";
-    int count = 0;
+    /* dataString recebe uma data nula, pois seu uso não será necessário. */
+    string dataString = "00/00/00";
 
+    /* Abre o arquivo de Possíveis Jogos. */
     ifstream file;
     file.open("dados/PossiveisJogos.txt");
 
-    /* Procura a marcação de fim do arquivo */
+    /* Procura a marcação de fim do arquivo. */
     file.seekg(0, file.end);
     int END_FILE = file.tellg();
     file.seekg(0, file.beg);
 
-    while (count < NUM_POSSIVEIS_JOGOS) {
+    /* O laço while percorre todo o arquivo de Possíveis Jogos */
+    while (numeroJogo < NUM_POSSIVEIS_JOGOS) {
+
+        /* Cria um novo array para os numeros jogados e um objeto Date. */
         int *numerosJogados = new int[15];
-        count++;
         Date *date = new Date();
 
+        /* Incrementa a variável de parada do laço */
         numeroJogo++;
-        cout << file.tellg() << " | " << END_FILE << endl;
 
         /* Formata a data para o objeto */
-
         formatDate(dataString, date);
 
-
+        /* Insere os números no array */
         for (int i = 0; i < 15; i++) {
             file >> numerosJogados[i];
         }
@@ -86,12 +94,14 @@ void Lotofacil::montaTabelaDeJogosAleatoriosESeusAcertos()
     file.close();
 }
 
-void Lotofacil::verificaAcertosDosPossiveisJogos()
+void Lotofacil::escreveAcertos()
 {
+    /* Abre o arquivo de Acertos para a escrita */
     ofstream file;
     file.open("dados/Acertos.txt");
     int acertos = 0;
 
+    /* O laço externo percorre toda a Lista de Jogos Sorteados */
     for (int i = 0; i < listaJogosSorteados->size(); i++) {
         /* Início da linha, com o número do jogo e sua data */
         file << listaJogosSorteados->at(i)->getNumberGame() << " "
@@ -99,13 +109,18 @@ void Lotofacil::verificaAcertosDosPossiveisJogos()
              << listaJogosSorteados->at(i)->getDate()->getMonth() << "/"
              << listaJogosSorteados->at(i)->getDate()->getYear() << " ";
 
+        /* Cria um array para armazenar os números sorteados */
         int *numerosSorteados = new int[15];
         numerosSorteados = listaJogosSorteados->at(i)->getNumerosSorteados();
 
+        /*  O laço do meio percorre toda a Lista de Possíveis Jogos */
         for (int j = 0; j < listaPossiveisJogos->size(); j++) {
+            /* Cria um array para armazenar os números jogados */
             int *numerosJogados = new int[15];
             numerosJogados = listaPossiveisJogos->at(j)->getNumerosSorteados();
 
+            /*  E os dois laços mais internos verificam se o jogo atual obteve
+                um acerto de 11 ou mais números. */
             for (int k = 0; k < 15; k++) {
                 for (int l = 0; l < 15; l++) {
                     if (numerosJogados[l] == numerosSorteados[k]) {
@@ -114,12 +129,19 @@ void Lotofacil::verificaAcertosDosPossiveisJogos()
                     }
                 }
             }
+
+            /*  Se acertos for igual ou maior do que 11, escreve "1" no arquivo,
+                senão escreve "0", representando um acerto ou uma falha. */
             if (acertos > 10)
                 file << "1 ";
             else
                 file << "0 ";
+
+            /*  Reseta acertos para 0 */
             acertos = 0;
+
         }
+        /*  Escreve uma quebra de linha no arquivo. */
         file << endl;
         cout << "I: " << i << "\n";
     }
@@ -128,62 +150,97 @@ void Lotofacil::verificaAcertosDosPossiveisJogos()
 
 void Lotofacil::formatDate(string dateString, Date *date)
 {
+
+    /*  Variáveis auxiliares para percorrer a string de data, onde "m" é o
+        índice da string data, e "n" é o índice da variavel auxiliar de
+        formatação . */
     unsigned m = 0, n = 0;
+
+    /* Variáveis auxiliares para a formatação da data. */
     string day_, month_, year_;
 
+    /*  Enquanto ele não encontrar uma "/" na string data, ele continua
+        procurando e vai adicionando os caracteres na variável auxiliar. */
     while (dateString[m] != '/') {
         day_[n] = dateString[m];
         m++;
         n++;
     }
 
+    /* Converte o dia de string para int, e insere no objeto Date. */
     int day = stoi(day_);
     date->setDay(day);
 
+    /*  Incrementa o índice da string data, e reseta o índice da variável de
+        formatação. */
     m++;
     n = 0;
+
+    /*  Enquanto ele não encontrar uma "/" na string data, ele continua
+        procurando e vai adicionando os caracteres na variável auxiliar. */
     while (dateString[m] != '/') {
         month_[n] = dateString[m];
         m++;
         n++;
     }
+
+    /* Converte o mês de string para int, e insere no objeto Date. */
     int month = stoi(month_);
     date->setMonth(month);
 
+    /*  Incrementa o índice da string data, e reseta o índice da variável de
+        formatação. */
     m++;
     n = 0;
+
+    /*  Enquanto ele não encontrar um "\0" na string data, ou seja, o fim da
+        string, ele continua procurando e vai adicionando os caracteres na
+        variável auxiliar. */
     while (dateString[m] != '\0') {
         year_[n] = dateString[m];
         m++;
         n++;
     }
+
+    /* Converte o ano de string para int, e insere no objeto Date. */
     int year = stoi(year_);
     date->setYear(year);
 }
 
-void Lotofacil::ordenaLotofacil()
+void Lotofacil::ordenaJogosSorteados()
 {
+    /*  Input e Output são os arquivos de leitura e escrita, respectivamente.
+        NumeroJogo é a variável para armazenar o número do jogo, e Count é
+        o contador para controlar o laço while. */
     fstream input, output;
-    int numeroJogo;
+    int numeroJogo = 0, count = 0;
     string data;
-    int count = 0;
 
+    /* Abertura dos arquivos de entrada e saída. */
     input.open("dados/lotofacil.txt");
     output.open("dados/lotofacilOrdenada.txt");
 
+    /* Percorre o arquivo de entrada, com a ajuda do contador "count". */
     while (count < NUM_JOGOS_ATUAIS) {
+        /* Cria um array para armazenar os números jogados. */
+        int *numerosJogados = new int[15];
+
         count++;
 
+        /*  Lê o número do jogo e a data e armazena em suas respectivas
+            variáveis. */
         input >> numeroJogo >> data;
-        int *numerosJogados = new int[15];
+
+        /*  Lê os números do arquivo de entrada e escreve no array. */
         for (int i = 0; i < 15; i++) {
             input >> numerosJogados[i];
-            cout << numerosJogados[i] << " ";
         }
-        cout << endl;
 
+        /* Chama o método bubbleSort e passa por parâmetro o array de números
+            jogados, que será ordenado e será retornado por referência. */
         bubbleSort(numerosJogados);
 
+        /* Escreve o número do jogo e seu resultado no arquivo de saída. */
         output << numeroJogo << " " << data << " ";
         for (int i = 0; i < 15; i++) {
             output << numerosJogados[i] << " ";
@@ -191,11 +248,9 @@ void Lotofacil::ordenaLotofacil()
         output << endl;
 
     }
-
-
 }
 
-void Lotofacil::verificaJogosQueEstaoHaMaisTempoSemCair()
+void Lotofacil::verificaIrregularidadeAcertos()
 {
     structures::LinkedList<JogosSemCair*> *lista = new structures::LinkedList<JogosSemCair*>();
 
@@ -335,6 +390,12 @@ void Lotofacil::verificaJogosQueEstaoHaMaisTempoSemCair()
 
     /*  ///////////////////////////////////////////////########################################## */
 
+    /* imprime listas */
+    for (int i = 0; i < listaJogosSorteados->size(); i++) {
+        cout << listaJogosSorteados->at(i)->getDate()->getDay() << "/"
+             << listaJogosSorteados->at(i)->getDate()->getMonth() << "/"
+             << listaJogosSorteados->at(i)->getDate()->getYear() << endl;
+    }
 
 }
 
