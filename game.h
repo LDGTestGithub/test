@@ -27,8 +27,30 @@ public:
         return date;
     }
 
+    double getDistanciaMedia()
+    {
+        return distanciaMedia;
+    }
+
+    void setDistanciaMedia(double _distanciaMedia)
+    {
+        distanciaMedia = _distanciaMedia;
+    }
+
+    double getDiferencaDistanciaTotal()
+    {
+        return diferencaDistanciaTotal;
+    }
+
+    void setDiferencaDistanciaTotal(double _diferencaDistanciaTotal)
+    {
+        diferencaDistanciaTotal = _diferencaDistanciaTotal;
+    }
+
 private:
     unsigned game;
     int *numeros_sorteados = new int[15];
     Date *date;
+    double distanciaMedia = 0;
+    double diferencaDistanciaTotal = 0;
 };

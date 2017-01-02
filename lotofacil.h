@@ -54,6 +54,8 @@ public:
 
     void verificaIrregularidadeAcertos();
 
+    void verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSelecionados);
+
 
 private:
     /*  Método auxiliar para ordenação de um dado vetor em ordem crescente.

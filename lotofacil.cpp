@@ -367,11 +367,41 @@ void Lotofacil::verificaIrregularidadeAcertos()
         // cout << "Média 2: " << NUM_JOGOS_ATUAIS << "/" << media2 << " = " << NUM_JOGOS_ATUAIS/media << endl;
 
         cout << media1/numElementosDiferentesDeZero << " | " << NUM_JOGOS_ATUAIS/media2 << "\n";
+        listaPossiveisJogos->at(k)->setDistanciaMedia(media1/numElementosDiferentesDeZero);
+
         mediaTotal1 += media1/numElementosDiferentesDeZero;
         mediaTotal2 += NUM_JOGOS_ATUAIS/media2;
     }
 
     cout << endl << mediaTotal1/NUM_POSSIVEIS_JOGOS << " | " << mediaTotal2/NUM_POSSIVEIS_JOGOS << endl;
+
+    /* Seta a diferença entre a média e a média total de cada possivel jogo */
+    for (int i = 0; i < listaPossiveisJogos->size(); i++) {
+        listaPossiveisJogos->at(i)->setDiferencaDistanciaTotal(listaPossiveisJogos->at(i)->getDistanciaMedia() - mediaTotal1/NUM_POSSIVEIS_JOGOS);
+        cout << listaPossiveisJogos->at(i)->getDistanciaMedia() << " - " << mediaTotal1/NUM_POSSIVEIS_JOGOS << " = " << listaPossiveisJogos->at(i)->getDistanciaMedia() - mediaTotal1/NUM_POSSIVEIS_JOGOS << "\n";
+    }
+
+    /* Ordena a lista de acordo com a diferença entre a média e a média total */
+    Game *aux;
+
+    for (int i = 0; i < listaPossiveisJogos->size(); i++) {
+        for (int j = i+1; j < listaPossiveisJogos->size(); j++) {
+            if (listaPossiveisJogos->at(i)->getDiferencaDistanciaTotal() < listaPossiveisJogos->at(j)->getDiferencaDistanciaTotal()) {
+                aux = listaPossiveisJogos->at(i);
+                listaPossiveisJogos->at(i) = listaPossiveisJogos->at(j);
+                listaPossiveisJogos->at(j) = aux;
+            }
+        }
+    }
+
+    structures::LinkedList<Game*> *listaJogosSelecionados = new structures::LinkedList<Game*>();
+
+    for (int i = 0; i < 25; i++) {
+        cout << listaPossiveisJogos->at(i)->getNumberGame() << " - " << listaPossiveisJogos->at(i)->getDiferencaDistanciaTotal() << " | " << listaPossiveisJogos->at(i)->getDistanciaMedia() << " - " << mediaTotal1/NUM_POSSIVEIS_JOGOS << "\n";
+        listaJogosSelecionados->push_back(listaPossiveisJogos->at(i));
+    }
+
+    verificaTaxaAcerto(listaJogosSelecionados);
 
 
     /*  Bloco de código para verificar qual o Jogo com o maior número de rodadas sem um acerto.
@@ -507,28 +537,66 @@ void Lotofacil::verificaIrregularidadeAcertos()
 
 void Lotofacil::verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSelecionados)
 {
-    int jogoSorteado = 500;
+    // double taxa5Global = 0, taxa5e7Global = 0, taxa7Global = 0;
+    //
+    // for (int jogoSorteado = 1; jogoSorteado < NUM_JOGOS_ATUAIS; jogoSorteado++) {
+        double numJogosTestados = listaJogosSelecionados->size();
+        // cout << "numJogosTestados: " << numJogosTestados << endl;
+        double numAcertosAntesDe5Rodadas = 0;
+        double numAcertosEntre5e7Rodadas = 0;
+        double numAcertosDepoisDe7Rodadas = 0;
 
-    for (int i = 0; i < listaJogosSelecionados; i++) {
-        int numAcertos = 0;
-        int rodadasParaAcertar = 0;
-        for (int m = jogoSorteado; m < NUM_JOGOS_ATUAIS; m++) {
-            for (int j = 0; j < 15; j++) {
-                for (int k = 0; k < 15; k++) {
-                    if (listaJogosSelecionados->at(i)->getNumerosSorteados()[j] == listaJogosSorteados->at(m)->getNumerosSorteados()[k]) {
-                        numAcertos++;
-                        break;
+        for (int i = 0; i < listaJogosSelecionados->size(); i++) {
+            int numAcertos = 0;
+            int rodadasParaAcertar = 0;
+            for (int m = RODADA_VERIFICACAO; m < NUM_JOGOS_ATUAIS; m++) {
+                for (int j = 0; j < 15; j++) {
+                    for (int k = 0; k < 15; k++) {
+                        if (listaJogosSelecionados->at(i)->getNumerosSorteados()[j] == listaJogosSorteados->at(m)->getNumerosSorteados()[k]) {
+                            numAcertos++;
+                            break;
+                        }
                     }
                 }
+                if (numAcertos >= 11) {
+                    break;
+                } else {
+                    rodadasParaAcertar++;
+                }
+                numAcertos = 0;
             }
-            if (numAcertos > 10) {
-                break;
+            // cout << "O jogo " << listaJogosSelecionados->at(i)->getNumberGame() << " levou " << rodadasParaAcertar << " rodadas para acertar, com " << numAcertos << " acertos." << endl;
+            if (rodadasParaAcertar < 5) {
+                numAcertosAntesDe5Rodadas++;
+                // cout << "incNumAcertosAntesde5rodadas" << endl;
+            } else if (rodadasParaAcertar < 8) {
+                numAcertosEntre5e7Rodadas++;
             } else {
-                rodadasParaAcertar++;
+                numAcertosDepoisDe7Rodadas++;
             }
         }
-        cout << "O jogo " << listaJogosSelecionados->at(i)->getNumberGame() << " levou " << rodadasParaAcertar << " rodadas para acertar." << endl;
-    }
+
+        double taxa5 = numAcertosAntesDe5Rodadas/numJogosTestados;
+        double taxa5e7 = numAcertosEntre5e7Rodadas/numJogosTestados;
+        double taxa7 = numAcertosDepoisDe7Rodadas/numJogosTestados;
+        cout << "Taxa de Acertos antes de 5 jogos = " << taxa5*100 << "%. \n"
+             << "Taxa de Acertos entre 5 e 7 jogos = " << taxa5e7*100 << "%. \n"
+             << "Taxa de Acertos depois de 7 jogos = " << taxa7*100 << "%. \n";
+        // taxa5Global += taxa5;
+        // taxa5e7Global += taxa5e7;
+        // taxa7Global += taxa7;
+        //
+        // cout << "Count: " << jogoSorteado << "\n";
+    // }
+    //
+    // taxa5Global = taxa5Global/(NUM_JOGOS_ATUAIS-1);
+    // taxa5e7Global = taxa5e7Global/(NUM_JOGOS_ATUAIS-1);
+    // taxa7Global = taxa7Global/(NUM_JOGOS_ATUAIS-1);
+    //
+    // cout << "### Taxa Global de Acertos ### \n"
+    //      << "Antes de 5 jogos = " << taxa5Global*100 << "%.\n"
+    //      << "Entre 5 e 7 jogos = " << taxa5e7Global*100 << "%.\n"
+    //      << "Depois de 7 jogos = " << taxa7Global*100 << "%.\n";
 }
 
 void Lotofacil::bubbleSort(int *vetor)
