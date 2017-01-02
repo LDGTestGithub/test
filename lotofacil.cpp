@@ -2,6 +2,7 @@
 
 #define NUM_JOGOS_ATUAIS 1454
 #define NUM_POSSIVEIS_JOGOS 966
+#define RODADA_VERIFICACAO 634  /* Rodada a que se quer estimar os resultados */
 
 void Lotofacil::leJogosSorteados()
 {
@@ -252,39 +253,54 @@ void Lotofacil::ordenaJogosSorteados()
 
 void Lotofacil::verificaIrregularidadeAcertos()
 {
-    structures::LinkedList<JogosSemCair*> *lista = new structures::LinkedList<JogosSemCair*>();
+    /*  Criação da lista que contém o número dos jogos e a quantidade de rodadas
+        que estão sem acertos. */
+    structures::LinkedList<JogosSemCair*> *listaJogosSemCair = new structures::LinkedList<JogosSemCair*>();
 
+    /*  Abre o arquivo que contém todos os Acertos dos Possíveis Jogos. */
     ifstream file;
     file.open("dados/Acertos.txt");
-    unsigned count = 0, numeroJogoSorteado;
-    unsigned resultado;
+
+    /*  Count marca a rodada de sorteio sendo verificada pelo laço while,
+        e resultado é o "1" ou "0", do Acerto. */
+    unsigned count = 0, numeroJogoSorteado = 0, resultado = 0;
     string date;
 
+    /*  Cria todos os elementos da Lista de Jogos Sem Cair, com base no
+        número de Possíveis Jogos. */
     for (int i = 0; i < NUM_POSSIVEIS_JOGOS; i++) {
         JogosSemCair *jogo = new JogosSemCair();
         jogo->setNumeroJogo(i);
-        lista->push_back(jogo);
+        listaJogosSemCair->push_back(jogo);
     }
 
-    while (count < 634) {
+    /*  Este laço percorre todos os PossiveisJogos, incrementando (ou zerando)
+        suas rodadas que estão sem acertos com base na tabela de Acertos, indo
+        da rodada 1 até a rodada definida pelo usuário. */
+    while (count < RODADA_VERIFICACAO) {
         file >> numeroJogoSorteado >> date;
-        for (int i = 0; i < lista->size(); i++) {
+        for (int i = 0; i < listaJogosSemCair->size(); i++) {
+
+            /*  Lê o resultado da tabela de Acertos e incrementa/reseta o
+                número de rodadas sem cair de cada Possível Jogo. */
             file >> resultado;
             if (resultado == 0)
-                lista->at(i)->setJogosSemCair(lista->at(i)->getJogosSemCair() + 1);
+                listaJogosSemCair->at(i)->setJogosSemCair(listaJogosSemCair->at(i)->getJogosSemCair() + 1);
             else {
-                lista->at(i)->setJogosSemCair(0);
+                listaJogosSemCair->at(i)->setJogosSemCair(0);
             }
         }
-        cout << "Count: " << count << endl;
         count++;
     }
 
+    /*  Bloco de código para verificar qual o Jogo com o maior número de rodadas sem um acerto.
+        Irrelevante, e será retirado ao longo do desenvolvimento desta implementação. */
+    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
     int test = 0, jogoComMaiorTempoSemCair = 0;
-    for (int i = 0; i < lista->size(); i++) {
-        if (lista->at(i)->getJogosSemCair() > test) {
-            test = lista->at(i)->getJogosSemCair();
-            jogoComMaiorTempoSemCair = lista->at(i)->getNumeroJogo();
+    for (int i = 0; i < listaJogosSemCair->size(); i++) {
+        if (listaJogosSemCair->at(i)->getJogosSemCair() > test) {
+            test = listaJogosSemCair->at(i)->getJogosSemCair();
+            jogoComMaiorTempoSemCair = listaJogosSemCair->at(i)->getNumeroJogo();
         }
     }
 
@@ -293,8 +309,13 @@ void Lotofacil::verificaIrregularidadeAcertos()
     for (int i = 0; i < 15; i++) {
         cout << listaPossiveisJogos->at(jogoComMaiorTempoSemCair)->getNumerosSorteados()[i] << " ";
     }
+    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
-    /* Testando o jogo 1971 para ver em quantas rodadas ele vai acertar */
+    /*  Bloco de código para verificar, após a rodada atual, quantas rodadas passarão
+        até o jogo com maior numero de rodadas obter um acerto.
+        Irrelevante, e será retirado ao longo do desenvolvimento desta implementação. */
+    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+    /* Testando o jogo com maior tempo sem cair para ver em quantas rodadas ele vai acertar */
     bool acerto = false;
     int numerosCertos = 0;
     int *numerosJogados = new int[15];
@@ -340,9 +361,21 @@ void Lotofacil::verificaIrregularidadeAcertos()
     for (int i = 0; i < 15; i++) {
         cout << numerosSorteados[i] << " ";
     }
+    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
-    /*  ///////////////////////////////////////////////########################################## */
+    /*  Bloco de código utilizado para esboçar uma ideia, onde se analisa, dentre um
+        determinado número de jogos selecionados devido sua alta chance de acerto,
+        quantas rodadas se passarão até cada jogo obter um acerto.
 
+        Será generalizado para um método de retorno de Taxa de Acerto.
+
+        Os jogos serão selecionados a partir da sua distância média entre acertos.
+        Todos os jogos que possuírem a distância média menor do que a distância
+        média global, e estiverem há várias rodadas sem acerto, terão uma alta
+        chance de acerto dentro das próximas 5 rodadas, e o método de Taxa de
+        Acerto retornará a taxa para cada uma das estratégias testadas e
+        escolhidas. */
+    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
     ofstream sorteiosNaoCoincidentes;
     sorteiosNaoCoincidentes.open("Sorteios não coincidentes na linha 634.txt");
 
@@ -351,8 +384,8 @@ void Lotofacil::verificaIrregularidadeAcertos()
     //     sorteiosNaoCoincidentes << i << " ";
     // }
     // sorteiosNaoCoincidentes << "\n634 ";
-    for (int i = 0; i < lista->size(); i++) {
-        sorteiosNaoCoincidentes << i << " " << lista->at(i)->getJogosSemCair() << endl;
+    for (int i = 0; i < listaJogosSemCair->size(); i++) {
+        sorteiosNaoCoincidentes << i << " " << listaJogosSemCair->at(i)->getJogosSemCair() << endl;
     }
     sorteiosNaoCoincidentes.close();
 
@@ -387,15 +420,7 @@ void Lotofacil::verificaIrregularidadeAcertos()
     }
 
     cout << endl << endl << "Taxa de acertos: " << numAcertos/16 << endl;
-
-    /*  ///////////////////////////////////////////////########################################## */
-
-    /* imprime listas */
-    for (int i = 0; i < listaJogosSorteados->size(); i++) {
-        cout << listaJogosSorteados->at(i)->getDate()->getDay() << "/"
-             << listaJogosSorteados->at(i)->getDate()->getMonth() << "/"
-             << listaJogosSorteados->at(i)->getDate()->getYear() << endl;
-    }
+    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 }
 
