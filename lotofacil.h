@@ -58,6 +58,8 @@ public:
 
     double estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao);
 
+    void estrategiaAnaliseAcertos(int rodadaVerificacao);
+
 
 private:
     /*  Método auxiliar para ordenação de um dado vetor em ordem crescente.
