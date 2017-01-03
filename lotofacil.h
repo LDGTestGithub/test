@@ -54,7 +54,9 @@ public:
 
     void verificaIrregularidadeAcertos();
 
-    void verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSelecionados);
+    double verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSelecionados, int rodadaVerificacao);
+
+    double estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao);
 
 
 private:
