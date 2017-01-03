@@ -286,7 +286,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
             tabelaDeFalhasAcertos->at(j)->push_back(resultado);
         }
 
-        cout << "Criando tabela de falhas e acertos. Jogo " << i << " | " << RODADA_VERIFICACAO-1 << " ...\n";
+        // cout << "Criando tabela de falhas e acertos. Jogo " << i << " | " << rodadaVerificacao-1 << " ...\n";
     }
 
     /* Contagem da distância entre cada acerto para cada possível jogo. */
@@ -305,7 +305,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
                 listaSequenciaFalhas->push_back(0);
         }
 
-        cout << "Criando tabela das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ... \n";
+        // cout << "Criando tabela das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ... \n";
     }
 
     /*  Calcula a média das distâncias entre cada acerto. */
@@ -339,7 +339,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
             incluída em cada objeto Game, na Lista Principal de Possíveis
             Jogos. */
         listaPossiveisJogos->at(i)->setDistanciaMedia(mediaSucessaoDeFalhas);
-        cout << "Calculando a média das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
+        // cout << "Calculando a média das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
     }
     mediaTotalSucessaoDeFalhas = mediaTotalSucessaoDeFalhas/NUM_POSSIVEIS_JOGOS;
 
@@ -347,7 +347,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
     for (int i = 0; i < listaPossiveisJogos->size(); i++) {
         double diferenca = listaPossiveisJogos->at(i)->getDistanciaMedia() - mediaTotalSucessaoDeFalhas;
         listaPossiveisJogos->at(i)->setDiferencaDistanciaTotal(diferenca);
-        cout << "Setando a diferença da média da distância total da combinação " << i << " | " << listaPossiveisJogos->size() << " ...\n";
+        // cout << "Setando a diferença da média da distância total da combinação " << i << " | " << listaPossiveisJogos->size() << " ...\n";
     }
 
     /*  Ordena a lista de acordo com a diferença entre a média e a média total.
@@ -363,7 +363,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
                 listaPossiveisJogos->at(j) = aux;
             }
         }
-        cout << "Ordenando a lista de possíveis jogos. " << i << " | " << listaPossiveisJogos->size() << " ...\n";
+        // cout << "Ordenando a lista de possíveis jogos. " << i << " | " << listaPossiveisJogos->size() << " ...\n";
     }
 
     /*  Insere os 25 primeiros elementos na lista de Jogos Selecionados, ou
@@ -373,7 +373,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
     structures::LinkedList<Game*> *listaJogosSelecionados = new structures::LinkedList<Game*>();
 
     for (int i = 0; i < numJogos; i++) {
-        cout << listaPossiveisJogos->at(i)->getNumberGame() << " - " << listaPossiveisJogos->at(i)->getDiferencaDistanciaTotal() << " | " << listaPossiveisJogos->at(i)->getDistanciaMedia() << " - " << mediaTotalSucessaoDeFalhas << "\n";
+        // cout << listaPossiveisJogos->at(i)->getNumberGame() << " - " << listaPossiveisJogos->at(i)->getDiferencaDistanciaTotal() << " | " << listaPossiveisJogos->at(i)->getDistanciaMedia() << " - " << mediaTotalSucessaoDeFalhas << "\n";
         listaJogosSelecionados->push_back(listaPossiveisJogos->at(i));
     }
 

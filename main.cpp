@@ -9,13 +9,22 @@ int main()
     lotofacil->escreveAcertos();
     // lotofacil->ordenaJogosSorteados();
     // lotofacil->verificaIrregularidadeAcertos();
-    double mediaTotal = 0;
-    for (int i = 0; i < 10; i++)
-        mediaTotal += lotofacil->estrategiaDiferencaMedia(10, i);
+    int rodadaInicioVerificacao = 1000, numRodadasVerificacao = 10;
+    double mediaTotal = 0, mediaMaxima = 0, mediaMinima = 1, aux = 0;
+    for (int i = rodadaInicioVerificacao; i < rodadaInicioVerificacao+numRodadasVerificacao; i++) {
+        aux = lotofacil->estrategiaDiferencaMedia(numRodadasVerificacao, i);
+        mediaTotal += aux;
 
-    mediaTotal = mediaTotal/25;
+        if (aux > mediaMaxima)
+            mediaMaxima = aux;
+        if (aux < mediaMinima)
+            mediaMinima = aux;
+    }
 
-    cout << "A taxa de acerto em 5 jogos, de 10 testes realizados, é de " << mediaTotal*100 << "%.\n";
+    mediaTotal = mediaTotal/10;
+
+    cout << "\nA taxa de acerto em 5 jogos, de " << numRodadasVerificacao << " testes realizados, é de " << mediaTotal*100 << "%.\n"
+         << "Com média máxima de " << mediaMaxima*100 << "%. E mínima de " << mediaMinima*100 << "%.\n\n";
 
     delete lotofacil;
 
