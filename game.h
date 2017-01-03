@@ -47,10 +47,21 @@ public:
         diferencaDistanciaTotal = _diferencaDistanciaTotal;
     }
 
+    int getJogosSemCair()
+    {
+        return jogosSemCair;
+    }
+
+    void setJogosSemCair(int _jogosSemCair)
+    {
+        jogosSemCair = _jogosSemCair;
+    }
+
 private:
     unsigned game;
     int *numeros_sorteados = new int[15];
     Date *date;
     double distanciaMedia = 0;
     double diferencaDistanciaTotal = 0;
+    int jogosSemCair = 0;
 };
