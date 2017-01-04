@@ -52,16 +52,21 @@ public:
     void ordenaJogosSorteados();
 
 
-    void verificaIrregularidadeAcertos();
-
     double verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSelecionados, int rodadaVerificacao);
 
-    double estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao);
 
     void estrategiaAnaliseAcertos(int rodadaVerificacao);
 
+    void estrategiaAleatoriedade(int rodadaVerificacao, int numRodadas, int numJogos);
+
+    void testaEstrategiaDiferencaMedia(int rodadaVerificacao, int numRodadas, int numJogos);
+
+    void testaEstrategiaDiferencaMediaEMaiorSequenciaFalha(int rodadaVerificacao, int numRodadas, int numJogos);
 
 private:
+    double estrategiaDiferencaMediaEMaiorSequenciaFalha(int rodadaVerificacao, int numJogos);
+
+    double estrategiaDiferencaMedia(int rodadaVerificacao, int numJogos);
     /*  Método auxiliar para ordenação de um dado vetor em ordem crescente.
         Utiliza o método de ordenação BubbleSort.
     */

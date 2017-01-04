@@ -251,11 +251,59 @@ void Lotofacil::ordenaJogosSorteados()
     }
 }
 
+void Lotofacil::testaEstrategiaDiferencaMediaEMaiorSequenciaFalha(int rodadaVerificacao, int numRodadas, int numJogos)
+{
+    int count = 1;
+    double mediaTotal = 0, mediaMaxima = 0, mediaMinima = 1, aux = 0;
+    for (int i = rodadaVerificacao; i < rodadaVerificacao+numRodadas; i++) {
+        cout << "\nTestando estratégia da diferença média & maior sequência falha para a rodada " << i << "... " << count << " | " << numRodadas << "\n\n";
+
+        aux = estrategiaDiferencaMediaEMaiorSequenciaFalha(i, numJogos);
+        mediaTotal += aux;
+
+        if (aux > mediaMaxima)
+            mediaMaxima = aux;
+        if (aux < mediaMinima)
+            mediaMinima = aux;
+
+        count++;
+    }
+
+    mediaTotal = mediaTotal/numRodadas;
+
+    cout << "\nA taxa de acerto em 5 jogos, de " << numRodadas << " testes realizados, é de " << mediaTotal*100 << "%.\n"
+         << "Com média máxima de " << mediaMaxima*100 << "%. E mínima de " << mediaMinima*100 << "%.\n\n";
+}
+
+void Lotofacil::testaEstrategiaDiferencaMedia(int rodadaVerificacao, int numRodadas, int numJogos)
+{
+    int count = 1;
+    double mediaTotal = 0, mediaMaxima = 0, mediaMinima = 1, aux = 0;
+    for (int i = rodadaVerificacao; i < rodadaVerificacao+numRodadas; i++) {
+        cout << "\nTestando estratégia da diferença média para a rodada " << i << "... " << count << " | " << numRodadas << "\n\n";
+
+        aux = estrategiaDiferencaMedia(i, numJogos);
+        mediaTotal += aux;
+
+        if (aux > mediaMaxima)
+            mediaMaxima = aux;
+        if (aux < mediaMinima)
+            mediaMinima = aux;
+
+        count++;
+    }
+
+    mediaTotal = mediaTotal/numRodadas;
+
+    cout << "\nA taxa de acerto em 5 jogos, de " << numRodadas << " testes realizados, é de " << mediaTotal*100 << "%.\n"
+         << "Com média máxima de " << mediaMaxima*100 << "%. E mínima de " << mediaMinima*100 << "%.\n\n";
+}
+
 /*  Consiste basicamente em selecionar, dentre o número de combinações
     possíveis, uma determinada quantidade de jogos que possuem a maior
     diferença entre sua distância média e a distância média total de todos os
     possíveis jogos disponíveis. */
-double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
+double Lotofacil::estrategiaDiferencaMedia(int rodadaVerificacao, int numJogos)
 {
     ifstream file;
     file.open("dados/Acertos.txt");
@@ -268,10 +316,12 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
     int numeroJogo = 0, resultado = 0;
     string dataJogo;
 
+    cout << "Criando tabela de falhas e acertos...\n";
     /*  Preenche a tabela de falhas e acertos, com todas as "linhas" sendo
         listas das falhas e acertos de cada possível jogo, contando as falhas
         e acertos ATÉ A RODADA DE VERIFICAÇÃO, ou seja, a rodada que se quer
         verificar o acerto. */
+
     for (int i = 0; i < NUM_POSSIVEIS_JOGOS; i++) {
         structures::LinkedList<int> *listaDeFalhasAcertos = new structures::LinkedList<int>();
         tabelaDeFalhasAcertos->push_back(listaDeFalhasAcertos);
@@ -289,6 +339,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
         // cout << "Criando tabela de falhas e acertos. Jogo " << i << " | " << rodadaVerificacao-1 << " ...\n";
     }
 
+    cout << "Criando tabela das sequências de falhas das combinações...\n";
     /* Contagem da distância entre cada acerto para cada possível jogo. */
     structures::LinkedList<structures::LinkedList<int>*> *tabelaSequenciaFalhas = new structures::LinkedList<structures::LinkedList<int>*>();
 
@@ -308,6 +359,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
         // cout << "Criando tabela das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ... \n";
     }
 
+    cout << "Calculando a média das sequências de falhas das combinações...\n";
     /*  Calcula a média das distâncias entre cada acerto. */
     double mediaSucessaoDeFalhas = 0, mediaDistanciaEntreAcertos = 0;
     double mediaTotalSucessaoDeFalhas = 0;
@@ -343,13 +395,15 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
     }
     mediaTotalSucessaoDeFalhas = mediaTotalSucessaoDeFalhas/NUM_POSSIVEIS_JOGOS;
 
+    cout << "Calculando a diferença da média da distância total das combinações...\n";
     /*  Seta a diferença entre a média e a média total de cada possível jogo. */
     for (int i = 0; i < listaPossiveisJogos->size(); i++) {
         double diferenca = listaPossiveisJogos->at(i)->getDistanciaMedia() - mediaTotalSucessaoDeFalhas;
         listaPossiveisJogos->at(i)->setDiferencaDistanciaTotal(diferenca);
-        // cout << "Setando a diferença da média da distância total da combinação " << i << " | " << listaPossiveisJogos->size() << " ...\n";
+        // cout << "Setando a diferença da média da distância total da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
     }
 
+    cout << "Ordenando a lista de possíveis jogos...\n";
     /*  Ordena a lista de acordo com a diferença entre a média e a média total.
         Quanto maior a diferença, maior a chance desta sequência cair no
         próximo jogo sorteado, desde que ela esteja a um bom tempo sem cair. */
@@ -363,7 +417,7 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
                 listaPossiveisJogos->at(j) = aux;
             }
         }
-        // cout << "Ordenando a lista de possíveis jogos. " << i << " | " << listaPossiveisJogos->size() << " ...\n";
+        // cout << "Ordenando a lista de possíveis jogos. " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
     }
 
     /*  Insere os 25 primeiros elementos na lista de Jogos Selecionados, ou
@@ -389,67 +443,6 @@ double Lotofacil::estrategiaDiferencaMedia(int numJogos, int rodadaVerificacao)
 */
 void Lotofacil::estrategiaAnaliseAcertos(int rodadaVerificacao)
 {
-
-    // /*  Calcula a média das distâncias entre cada acerto. */
-    // double mediaSucessaoDeFalhas = 0, mediaDistanciaEntreAcertos = 0;
-    // double mediaTotalSucessaoDeFalhas = 0;
-    //
-    // for (int i = 0; i < NUM_POSSIVEIS_JOGOS; i++) {
-    //
-    //     /*  Calcula o valor médio das sucessões de falhas. */
-    //     double aux = 0, numSequenciaFalhas = 0;
-    //     for (int j = 0; j < tabelaSequenciaFalhas->at(i)->size(); j++) {
-    //         aux += tabelaSequenciaFalhas->at(i)->at(j);
-    //
-    //         if (tabelaSequenciaFalhas->at(i)->at(j) != 0)
-    //             numSequenciaFalhas++;
-    //     }
-    //
-    //     /*  Calcula o valor médio da distância entre cada acerto. */
-    //     double aux2 = 0;
-    //     for (int j = 0; j < tabelaDeFalhasAcertos->at(i)->size(); j++) {
-    //         aux2 += tabelaDeFalhasAcertos->at(i)->at(j);
-    //     }
-    //
-    //     /*  Atribui o valor correto a cada variável que representa a média. */
-    //     mediaSucessaoDeFalhas = aux/numSequenciaFalhas;
-    //     mediaDistanciaEntreAcertos = NUM_JOGOS_ATUAIS/aux2;
-    //
-    //     mediaTotalSucessaoDeFalhas += mediaSucessaoDeFalhas;
-    //
-    //     /*  Foi adotado, por padrão, a média de sucessão de falhas, sendo
-    //         incluída em cada objeto Game, na Lista Principal de Possíveis
-    //         Jogos. */
-    //     listaPossiveisJogos->at(i)->setDistanciaMedia(mediaSucessaoDeFalhas);
-    //     // cout << "Calculando a média das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
-    // }
-    // mediaTotalSucessaoDeFalhas = mediaTotalSucessaoDeFalhas/NUM_POSSIVEIS_JOGOS;
-
-    // /*  Seta a diferença entre a média e a média total de cada possível jogo. */
-    // for (int i = 0; i < listaPossiveisJogos->size(); i++) {
-    //     double diferenca = listaPossiveisJogos->at(i)->getDistanciaMedia() - mediaTotalSucessaoDeFalhas;
-    //     listaPossiveisJogos->at(i)->setDiferencaDistanciaTotal(diferenca);
-    //     // cout << "Setando a diferença da média da distância total da combinação " << i << " | " << listaPossiveisJogos->size() << " ...\n";
-    // }
-    //
-    // /*  Ordena a lista de acordo com a diferença entre a média e a média total.
-    //     Quanto maior a diferença, maior a chance desta sequência cair no
-    //     próximo jogo sorteado, desde que ela esteja a um bom tempo sem cair. */
-    // Game *aux;
-    //
-    // for (int i = 0; i < listaPossiveisJogos->size(); i++) {
-    //     for (int j = i+1; j < listaPossiveisJogos->size(); j++) {
-    //         if (listaPossiveisJogos->at(i)->getDiferencaDistanciaTotal() < listaPossiveisJogos->at(j)->getDiferencaDistanciaTotal()) {
-    //             aux = listaPossiveisJogos->at(i);
-    //             listaPossiveisJogos->at(i) = listaPossiveisJogos->at(j);
-    //             listaPossiveisJogos->at(j) = aux;
-    //         }
-    //     }
-    //     // cout << "Ordenando a lista de possíveis jogos. " << i << " | " << listaPossiveisJogos->size() << " ...\n";
-    // }
-
-    /* ##################################################################################################################################################### */
-
     ifstream file;
     file.open("dados/Acertos.txt");
 
@@ -512,7 +505,7 @@ void Lotofacil::estrategiaAnaliseAcertos(int rodadaVerificacao)
     for (int i = 0; i < listaJogosVencedores->size(); i++) {
         int numeroJogosSemCair = 0;
         for (int j = 0; j < rodadaVerificacao; j++) {
-            if (tabelaDeFalhasAcertosPorJogo->at(listaJogosVencedores->at(i)->getNumberGame())->at(j) == 0)
+            if (tabelaDeFalhasAcertosPorJogo->at(listaJogosVencedores->at(i)->getNumberGame()-1)->at(j) == 0)
                 numeroJogosSemCair++;
             else
                 numeroJogosSemCair = 0;
@@ -600,139 +593,62 @@ void Lotofacil::estrategiaAnaliseAcertos(int rodadaVerificacao)
 
 }
 
-
-
-void Lotofacil::verificaIrregularidadeAcertos()
+void Lotofacil::estrategiaAleatoriedade(int rodadaVerificacao, int numRodadas, int numJogos)
 {
-    /*  Bloco de código para verificar qual o Jogo com o maior número de rodadas sem um acerto.
-        Irrelevante, e será retirado ao longo do desenvolvimento desta implementação. */
-    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-    // int test = 0, jogoComMaiorTempoSemCair = 0;
-    // for (int i = 0; i < listaJogosSemCair->size(); i++) {
-    //     if (listaJogosSemCair->at(i)->getJogosSemCair() > test) {
-    //         test = listaJogosSemCair->at(i)->getJogosSemCair();
-    //         jogoComMaiorTempoSemCair = listaJogosSemCair->at(i)->getNumeroJogo();
-    //     }
-    // }
-    //
-    // cout << "Até o jogo 500, o jogo com mais jogos sem cair é o jogo de número: " << jogoComMaiorTempoSemCair << "\ncom jogos sem cair: " << test << endl;
-    // cout << "Números Jogados: ";
-    // for (int i = 0; i < 15; i++) {
-    //     cout << listaPossiveisJogos->at(jogoComMaiorTempoSemCair)->getNumerosSorteados()[i] << " ";
-    // }
-    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+    /*  Gera uma determinada quantidade de jogos aleatórios, e insere em uma
+        Lista de Jogos. */
+    srand((unsigned)time(NULL));
+    structures::LinkedList<Game*> *listaJogos = new structures::LinkedList<Game*>();
+    Date *date = new Date();
 
-    /*  Bloco de código para verificar, após a rodada atual, quantas rodadas passarão
-        até o jogo com maior numero de rodadas obter um acerto.
-        Irrelevante, e será retirado ao longo do desenvolvimento desta implementação. */
-    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-    /* Testando o jogo com maior tempo sem cair para ver em quantas rodadas ele vai acertar */
-    // bool acerto = false;
-    // int numerosCertos = 0;
-    // int *numerosJogados = new int[15];
-    // int jogoGanho = 0;
-    // numerosJogados = listaPossiveisJogos->at(jogoComMaiorTempoSemCair)->getNumerosSorteados();
-    //
-    // for (int i = 634; i < NUM_JOGOS_ATUAIS; i++) {
-    //     int *numerosSorteados = new int[15];
-    //     numerosSorteados = listaJogosSorteados->at(i)->getNumerosSorteados();
-    //     // for (int j = 0; j < 15; j++) {
-    //     //     if (numerosJogados[j] == numerosSorteados[j])
-    //     //         numerosCertos++;
-    //     //     else {
-    //     //         numerosCertos = 0;
-    //     //         break;
-    //     //     }
-    //     // }
-    //     for (int k = 0; k < 15; k++) {
-    //         for (int l = 0; l < 15; l++) {
-    //             if (numerosJogados[l] == numerosSorteados[k]) {
-    //                 numerosCertos++;
-    //                 break;
-    //             }
-    //         }
-    //     }
-    //     if (numerosCertos >= 11) {
-    //         cout << "\nJogo ganho: " << endl;
-    //         for (int m = 0; m < 15; m++) {
-    //             cout << listaJogosSorteados->at(i)->getNumerosSorteados()[m] << " ";
-    //         }
-    //         acerto = true;
-    //         jogoGanho = i;
-    //         numerosCertos = 0;
-    //         break;
-    //     }
-    //     numerosCertos = 0;
-    // }
-    //
-    // cout << "Jogo ganho: " << jogoGanho << endl;
-    // cout << "Numeros sorteados: ";
-    // int *numerosSorteados = new int[15];
-    // numerosSorteados = listaJogosSorteados->at(jogoGanho)->getNumerosSorteados();
-    // for (int i = 0; i < 15; i++) {
-    //     cout << numerosSorteados[i] << " ";
-    // }
-    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+    for (int l = 0; l < numJogos; l++) {
+        int *array = new int[15];
+        int aux = 0;
+        int count = 0;
+        bool repetido = false;
 
-    /*  Bloco de código utilizado para esboçar uma ideia, onde se analisa, dentre um
-        determinado número de jogos selecionados devido sua alta chance de acerto,
-        quantas rodadas se passarão até cada jogo obter um acerto.
+        do {
+            for (int i = 0; count < 15; i++) {
+                aux = 1 + (rand() % 25);
 
-        Será generalizado para um método de retorno de Taxa de Acerto.
+                for (int j = 0; j < count; j++) {
+                    cout << aux << endl;
+                    if (aux == array[j]) {
+                        repetido = true;
+                        break;
+                    }
+                }
 
-        Os jogos serão selecionados a partir da sua distância média entre acertos.
-        Todos os jogos que possuírem a distância média menor do que a distância
-        média global, e estiverem há várias rodadas sem acerto, terão uma alta
-        chance de acerto dentro das próximas 5 rodadas, e o método de Taxa de
-        Acerto retornará a taxa para cada uma das estratégias testadas e
-        escolhidas. */
-    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-    // ofstream sorteiosNaoCoincidentes;
-    // sorteiosNaoCoincidentes.open("Sorteios não coincidentes na linha 634.txt");
-    //
-    // sorteiosNaoCoincidentes << "Jogo 634\n";
-    // // for (int i = 0; i < lista->size(); i++) {
-    // //     sorteiosNaoCoincidentes << i << " ";
-    // // }
-    // // sorteiosNaoCoincidentes << "\n634 ";
-    // for (int i = 0; i < listaJogosSemCair->size(); i++) {
-    //     sorteiosNaoCoincidentes << i << " " << listaJogosSemCair->at(i)->getJogosSemCair() << endl;
-    // }
-    // sorteiosNaoCoincidentes.close();
-    //
-    // // int arrayJogos = new int[16];
-    // int arrayJogos[] = {651, 111, 809, 645, 130, 813, 34, 674, 274, 384, 951, 277, 205, 249, 427, 665};
-    // int acertos = 0;
-    // double numAcertos = 0.0;
-    // cout << endl;
-    //
-    // for (int i = 0; i < 16; i++) {
-    //     int *jogo = new int[15];
-    //     jogo = listaPossiveisJogos->at(arrayJogos[i])->getNumerosSorteados();
-    //
-    //     for (int j = 634; j < NUM_JOGOS_ATUAIS; j++) {
-    //         for (int k = 0; k < 15; k++) {
-    //             for (int l = 0; l < 15; l++) {
-    //                 if (jogo[l] == listaJogosSorteados->at(j)->getNumerosSorteados()[k]) {
-    //                     acertos++;
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //         if (acertos >= 11) {
-    //             cout << "Jogo "  << arrayJogos[i] << " acertou na rodada " << j << " - " << j-634 <<
-    //                     " Acertos: " << acertos << endl;
-    //             numAcertos++;
-    //             acertos = 0;
-    //             break;
-    //         }
-    //         acertos = 0;
-    //     }
-    // }
-    //
-    // cout << endl << endl << "Taxa de acertos: " << numAcertos/16 << endl;
-    /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+                if(!repetido) {
+                    array[count] = aux;
+                    count++;
+                }
+                repetido = false;
+            }
+        } while (count < 15);
 
+        Game *game = new Game(l, array, date);
+        listaJogos->push_back(game);
+    }
+
+    /*  Realiza os testes, partindo do jogo sorteado até o jogo de parada,
+        ambos definidos por parâmetros. */
+    double mediaTotal = 0, mediaMaxima = 0, mediaMinima = 1, aux = 0;
+    for (int i = rodadaVerificacao; i < rodadaVerificacao+numRodadas; i++) {
+        // aux = lotofacil->estrategiaDiferencaMedia(numRodadasVerificacao, i);
+        aux = verificaTaxaAcerto(listaJogos, i);
+        mediaTotal += aux;
+
+        if (aux > mediaMaxima)
+            mediaMaxima = aux;
+        if (aux < mediaMinima)
+            mediaMinima = aux;
+    }
+
+    mediaTotal = mediaTotal/numRodadas;
+
+    cout << "\nA taxa de acerto em 5 jogos, de " << numRodadas << " testes realizados, é de " << mediaTotal*100 << "%.\n"
+         << "Com média máxima de " << mediaMaxima*100 << "%. E mínima de " << mediaMinima*100 << "%.\n\n";
 }
 
 double Lotofacil::verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSelecionados, int rodadaVerificacao)
@@ -745,7 +661,7 @@ double Lotofacil::verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSe
     for (int i = 0; i < listaJogosSelecionados->size(); i++) {
         int numAcertos = 0;
         int rodadas = 0;
-        for (int j = RODADA_VERIFICACAO; j < NUM_JOGOS_ATUAIS; j++) {
+        for (int j = rodadaVerificacao; j < NUM_JOGOS_ATUAIS; j++) {
             for (int k = 0; k < 15; k++) {
                 for (int l = 0; l < 15; l++) {
                     if (listaJogosSelecionados->at(i)->getNumerosSorteados()[k] == listaJogosSorteados->at(j)->getNumerosSorteados()[l]) {
@@ -769,18 +685,18 @@ double Lotofacil::verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSe
         else
             numAcertosDepoisDe7Rodadas++;
 
-        cout << "Jogo " << listaJogosSelecionados->at(i)->getNumberGame() << " foi sorteado após " << rodadas << " rodadas (" << rodadas+1+RODADA_VERIFICACAO << ").\n";
-        for (int j = 0; j < 15; j++)
-            cout << listaJogosSelecionados->at(i)->getNumerosSorteados()[j] << " ";
-        cout << "\n\n";
+        // cout << "Jogo " << listaJogosSelecionados->at(i)->getNumberGame() << " foi sorteado após " << rodadas << " rodadas (" << rodadas+1+RODADA_VERIFICACAO << ").\n";
+        // for (int j = 0; j < 15; j++)
+        //     cout << listaJogosSelecionados->at(i)->getNumerosSorteados()[j] << " ";
+        // cout << "\n\n";
     }
 
     double taxa5 = numAcertosAntesDe5Rodadas/numJogosTestados;
     double taxa5e7 = numAcertosAntesDe7Rodadas/numJogosTestados;
     double taxa7 = numAcertosDepoisDe7Rodadas/numJogosTestados;
-    cout << "Taxa de Acertos em 5 jogos = " << taxa5*100 << "%. \n"
-         << "Taxa de Acertos em 7 jogos = " << taxa5e7*100 << "%. \n"
-         << "Taxa de Acertos depois de 7 jogos = " << taxa7*100 << "%. \n";
+    // cout << "Taxa de Acertos em 5 jogos = " << taxa5*100 << "%. \n"
+    //      << "Taxa de Acertos em 7 jogos = " << taxa5e7*100 << "%. \n"
+    //      << "Taxa de Acertos depois de 7 jogos = " << taxa7*100 << "%. \n";
 
     return taxa5;
 }
@@ -797,4 +713,198 @@ void Lotofacil::bubbleSort(int *vetor)
             }
         }
     }
+}
+
+double Lotofacil::estrategiaDiferencaMediaEMaiorSequenciaFalha(int rodadaVerificacao, int numJogos)
+{
+    ifstream file;
+    file.open("dados/Acertos.txt");
+
+    /*  Construção da tabela de Acertos em memória, através de uma Lista
+        Encadeada Principal, que contém a Lista de Acertos e Falhas de cada
+        combinação possível. */
+    structures::LinkedList<structures::LinkedList<int>*> *tabelaDeFalhasAcertosPorJogo = new structures::LinkedList<structures::LinkedList<int>*>();
+
+    int numeroJogo = 0, resultado = 0;
+    string dataJogo;
+
+    cout << "Criando tabela de falhas e acertos...\n";
+    /*  Preenche a tabela de falhas e acertos, com todas as "linhas" sendo
+        listas das falhas e acertos de cada possível jogo, contando as falhas
+        e acertos ATÉ A RODADA DE VERIFICAÇÃO, ou seja, a rodada que se quer
+        verificar o acerto. */
+
+    for (int i = 0; i < NUM_POSSIVEIS_JOGOS; i++) {
+        structures::LinkedList<int> *listaDeFalhasAcertos = new structures::LinkedList<int>();
+        tabelaDeFalhasAcertosPorJogo->push_back(listaDeFalhasAcertos);
+    }
+
+    for (int i = 0; i < rodadaVerificacao; i++) {
+
+        file >> numeroJogo >> dataJogo;
+
+        for (int j = 0; j < NUM_POSSIVEIS_JOGOS; j++) {
+            file >> resultado;
+            tabelaDeFalhasAcertosPorJogo->at(j)->push_back(resultado);
+        }
+
+        // cout << "Criando tabela de falhas e acertos. Jogo " << i << " | " << rodadaVerificacao-1 << " ...\n";
+    }
+
+    cout << "Criando tabela das sequências de falhas das combinações...\n";
+    /* Contagem da distância entre cada acerto para cada possível jogo. */
+    structures::LinkedList<structures::LinkedList<int>*> *tabelaSequenciaFalhas = new structures::LinkedList<structures::LinkedList<int>*>();
+
+    for (int i = 0; i < NUM_POSSIVEIS_JOGOS; i++) {
+        structures::LinkedList<int> *listaSequenciaFalhas = new structures::LinkedList<int>();
+        tabelaSequenciaFalhas->push_back(listaSequenciaFalhas);
+
+        listaSequenciaFalhas->push_back(0);
+
+        for (int j = 0; j < tabelaDeFalhasAcertosPorJogo->at(i)->size(); j++) {
+            if (tabelaDeFalhasAcertosPorJogo->at(i)->at(j) == 0)
+                listaSequenciaFalhas->at(listaSequenciaFalhas->size()-1)++;
+            else
+                listaSequenciaFalhas->push_back(0);
+        }
+
+        // cout << "Criando tabela das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ... \n";
+    }
+
+    cout << "Calculando a média das sequências de falhas das combinações...\n";
+    /*  Calcula a média das distâncias entre cada acerto. */
+    double mediaSucessaoDeFalhas = 0, mediaDistanciaEntreAcertos = 0;
+    double mediaTotalSucessaoDeFalhas = 0;
+
+    for (int i = 0; i < NUM_POSSIVEIS_JOGOS; i++) {
+
+        /*  Calcula o valor médio das sucessões de falhas. */
+        double aux = 0, numSequenciaFalhas = 0;
+        for (int j = 0; j < tabelaSequenciaFalhas->at(i)->size(); j++) {
+            aux += tabelaSequenciaFalhas->at(i)->at(j);
+
+            if (tabelaSequenciaFalhas->at(i)->at(j) != 0)
+                numSequenciaFalhas++;
+        }
+
+        /*  Calcula o valor médio da distância entre cada acerto. */
+        double aux2 = 0;
+        for (int j = 0; j < tabelaDeFalhasAcertosPorJogo->at(i)->size(); j++) {
+            aux2 += tabelaDeFalhasAcertosPorJogo->at(i)->at(j);
+        }
+
+        /*  Atribui o valor correto a cada variável que representa a média. */
+        mediaSucessaoDeFalhas = aux/numSequenciaFalhas;
+        mediaDistanciaEntreAcertos = NUM_JOGOS_ATUAIS/aux2;
+
+        mediaTotalSucessaoDeFalhas += mediaSucessaoDeFalhas;
+
+        /*  Foi adotado, por padrão, a média de sucessão de falhas, sendo
+            incluída em cada objeto Game, na Lista Principal de Possíveis
+            Jogos. */
+        listaPossiveisJogos->at(i)->setDistanciaMedia(mediaSucessaoDeFalhas);
+        // cout << "Calculando a média das sequências de falhas da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
+    }
+    mediaTotalSucessaoDeFalhas = mediaTotalSucessaoDeFalhas/NUM_POSSIVEIS_JOGOS;
+
+    cout << "Calculando a diferença da média da distância total das combinações...\n";
+    /*  Seta a diferença entre a média e a média total de cada possível jogo. */
+    for (int i = 0; i < listaPossiveisJogos->size(); i++) {
+        double diferenca = listaPossiveisJogos->at(i)->getDistanciaMedia() - mediaTotalSucessaoDeFalhas;
+        listaPossiveisJogos->at(i)->setDiferencaDistanciaTotal(diferenca);
+        // cout << "Setando a diferença da média da distância total da combinação " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
+    }
+
+    cout << "Ordenando a lista de possíveis jogos...\n";
+    /*  Ordena a lista de acordo com a diferença entre a média e a média total.
+        Quanto maior a diferença, maior a chance desta sequência cair no
+        próximo jogo sorteado, desde que ela esteja a um bom tempo sem cair. */
+    Game *aux;
+
+    for (int i = 0; i < listaPossiveisJogos->size(); i++) {
+        for (int j = i+1; j < listaPossiveisJogos->size(); j++) {
+            if (listaPossiveisJogos->at(i)->getDiferencaDistanciaTotal() < listaPossiveisJogos->at(j)->getDiferencaDistanciaTotal()) {
+                aux = listaPossiveisJogos->at(i);
+                listaPossiveisJogos->at(i) = listaPossiveisJogos->at(j);
+                listaPossiveisJogos->at(j) = aux;
+            }
+        }
+        // cout << "Ordenando a lista de possíveis jogos. " << i << " | " << NUM_POSSIVEIS_JOGOS-1 << " ...\n";
+    }
+
+    /*  Insere os 100 primeiros elementos na lista de Jogos Selecionados, ou
+        seja, os 100 jogos com a maior diferença entre a média e a média total,
+        e chama a subrotina verificaTaxaAcerto, para retornar as chances destes
+        jogos serem sorteados nas próximas rodadas. */
+    structures::LinkedList<Game*> *listaJogosSelecionados = new structures::LinkedList<Game*>();
+
+    for (int i = 0; i < 100; i++) {
+        // cout << listaPossiveisJogos->at(i)->getNumberGame() << " - " << listaPossiveisJogos->at(i)->getDiferencaDistanciaTotal() << " | " << listaPossiveisJogos->at(i)->getDistanciaMedia() << " - " << mediaTotalSucessaoDeFalhas << "\n";
+        listaJogosSelecionados->push_back(listaPossiveisJogos->at(i));
+    }
+
+    /*  #################### FASE 01 ########################################### */
+
+    cout << "Criando tabela de falhas e acertos por sorteio...\n";
+    /*  Cria a tabela de falhas e acertos, com todas as "linhas" sendo listas
+        dos jogos sorteados e os resultados dos possíveis jogos. */
+    file.seekg(0, file.beg);
+    structures::LinkedList<structures::LinkedList<int>*> *tabelaDeFalhasAcertosPorSorteio = new structures::LinkedList<structures::LinkedList<int>*>();
+
+    int numeroJ = 0, result = 0;
+    string dataJ;
+
+    for (int i = 0; i < NUM_JOGOS_ATUAIS; i++) {
+        structures::LinkedList<int> *listaDeFalhasAcertos = new structures::LinkedList<int>();
+        tabelaDeFalhasAcertosPorSorteio->push_back(listaDeFalhasAcertos);
+
+        file >> numeroJ >> dataJ;
+
+        for (int j = 0; j < NUM_POSSIVEIS_JOGOS; j++) {
+            file >> result;
+            listaDeFalhasAcertos->push_back(result);
+        }
+    }
+
+    cout << "Verificando tamanho das sequências falhas de cada combinação...\n";
+    /*  Analisa o número de jogos sem cair dos jogos vencedores. */
+    for (int i = 0; i < listaJogosSelecionados->size(); i++) {
+        int numeroJogosSemCair = 0;
+        for (int j = 0; j < rodadaVerificacao; j++) {
+            if (tabelaDeFalhasAcertosPorJogo->at(listaJogosSelecionados->at(i)->getNumberGame()-1)->at(j) == 0)
+                numeroJogosSemCair++;
+            else
+                numeroJogosSemCair = 0;
+        }
+        listaJogosSelecionados->at(i)->setJogosSemCair(numeroJogosSemCair);
+    }
+
+    cout << "Ordenando lista de Jogos Selecionados, de acordo com o tamanho da sequência falha...\n" << endl;
+    /*  Ordenada a Lista de Jogos Selecionados, baseando-se no tamanho da
+        sequência falha. */
+    Game* auxiliar;
+    for (int i = 0; i < listaJogosSelecionados->size(); i++) {
+        for (int j = i+1; j < listaJogosSelecionados->size(); j++) {
+            if (listaJogosSelecionados->at(i)->getJogosSemCair() < listaJogosSelecionados->at(j)->getJogosSemCair()) {
+                auxiliar = listaJogosSelecionados->at(i);
+                listaJogosSelecionados->at(i) = listaJogosSelecionados->at(j);
+                listaJogosSelecionados->at(j) = aux;
+            }
+
+        }
+    }
+
+    cout << "Apagando jogos irrelevantes...\n";
+    /*  Apaga os jogos da Lista que não serão escolhidos. */
+    for (int i = 0; i < 100 - numJogos; i++) {
+        listaJogosSelecionados->pop_back();
+    }
+
+    /*  Printa todos os jogos escolhidos. */
+    // for (int i = 0; i < listaJogosSelecionados->size(); i++) {
+    //     cout << listaJogosSelecionados->at(i)->getNumberGame() << ". " << listaJogosSelecionados->at(i)->getJogosSemCair()
+    //          << " | " << listaJogosSelecionados->at(i)->getDiferencaDistanciaTotal() << "\n";
+    // }
+
+    return verificaTaxaAcerto(listaJogosSelecionados, rodadaVerificacao);
 }

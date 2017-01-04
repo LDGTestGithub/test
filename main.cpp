@@ -8,24 +8,9 @@ int main()
     lotofacil->lePossiveisJogos();
     lotofacil->escreveAcertos();
 
-    // int rodadaInicioVerificacao = 1000, numRodadasVerificacao = 25;
-    // double mediaTotal = 0, mediaMaxima = 0, mediaMinima = 1, aux = 0;
-    // for (int i = rodadaInicioVerificacao; i < rodadaInicioVerificacao+numRodadasVerificacao; i++) {
-    //     aux = lotofacil->estrategiaDiferencaMedia(numRodadasVerificacao, i);
-    //     mediaTotal += aux;
-    //
-    //     if (aux > mediaMaxima)
-    //         mediaMaxima = aux;
-    //     if (aux < mediaMinima)
-    //         mediaMinima = aux;
-    // }
-    //
-    // mediaTotal = mediaTotal/numRodadasVerificacao;
-    //
-    // cout << "\nA taxa de acerto em 5 jogos, de " << numRodadasVerificacao << " testes realizados, é de " << mediaTotal*100 << "%.\n"
-    //      << "Com média máxima de " << mediaMaxima*100 << "%. E mínima de " << mediaMinima*100 << "%.\n\n";
 
-    lotofacil->estrategiaAnaliseAcertos(500);
+    // lotofacil->testaEstrategiaDiferencaMedia(1000, 10, 10);
+    lotofacil->testaEstrategiaDiferencaMediaEMaiorSequenciaFalha(1000, 10, 5);
 
     delete lotofacil;
 
