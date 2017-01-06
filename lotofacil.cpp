@@ -657,6 +657,7 @@ double Lotofacil::verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSe
     double numAcertosAntesDe5Rodadas = 0;
     double numAcertosAntesDe7Rodadas = 0;
     double numAcertosDepoisDe7Rodadas = 0;
+    double numAcertos1Rodada = 0;
 
     for (int i = 0; i < listaJogosSelecionados->size(); i++) {
         int numAcertos = 0;
@@ -678,6 +679,9 @@ double Lotofacil::verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSe
             numAcertos = 0;
         }
 
+        if (rodadas == 1)
+            numAcertos1Rodada++;
+
         if (rodadas <= 5)
             numAcertosAntesDe5Rodadas++;
         else if (rodadas <= 7)
@@ -698,7 +702,7 @@ double Lotofacil::verificaTaxaAcerto(structures::LinkedList<Game*> *listaJogosSe
     //      << "Taxa de Acertos em 7 jogos = " << taxa5e7*100 << "%. \n"
     //      << "Taxa de Acertos depois de 7 jogos = " << taxa7*100 << "%. \n";
 
-    return taxa5;
+    return numAcertos1Rodada;
 }
 
 void Lotofacil::bubbleSort(int *vetor)
@@ -907,4 +911,384 @@ double Lotofacil::estrategiaDiferencaMediaEMaiorSequenciaFalha(int rodadaVerific
     // }
 
     return verificaTaxaAcerto(listaJogosSelecionados, rodadaVerificacao);
+}
+
+void Lotofacil::testaProporcaoParesImpares()
+{
+    ifstream file;
+    file.open("dados/lotofacilOrdenada.txt");
+    /*  Ímpares X Pares
+          13        2
+          12        3
+          11        4
+          10        5
+          9         6
+          8         7
+          7         8
+          6         9
+          5         10
+          4         11
+          3         12  */
+    int *proporcoes = new int[11];
+    string lixo;
+
+    for (int i = 0; i < 11; i++)
+        proporcoes[i] = 0;
+
+    for (int i = 0; i < NUM_JOGOS_ATUAIS; i++) {
+        int pares = 0;
+        int *numerosSorteados = new int[15];
+
+        file >> lixo >> lixo;
+        for (int j = 0; j < 15; j++) {
+            file >> numerosSorteados[j];
+        }
+
+        for (int k = 0; k < 15; k++) {
+            if (numerosSorteados[k]%2 == 0)
+                pares++;
+        }
+
+        proporcoes[pares-2] = proporcoes[pares-2]+1;
+    }
+
+    /*  Print resultados. */
+    double media = 0, resultado = 0;
+    for (int i = 0; i < 11; i++) {
+        resultado = proporcoes[i];
+        media = resultado/NUM_JOGOS_ATUAIS;
+        cout << "A proporção de " << 15-(i+2) << " ímpares e " << i+2 << " pares se repete " << proporcoes[i] << " vezes. (" << media*100 << "%)\n";
+    }
+
+    file.close();
+}
+
+void Lotofacil::testaProporcaoRepetidosNaoRepetidos()
+{
+    ifstream file;
+    file.open("dados/lotofacilOrdenada.txt");
+
+    /*  Repetidos X Não Repetidos
+            15          0
+            14          1
+            13          2
+            12          3
+            11          4
+            10          5
+             9          6
+             8          7
+             7          8
+             6          9
+             5         10   */
+    int *proporcoes = new int[11];
+    string lixo;
+
+    for (int i = 0; i < 11; i++)
+        proporcoes[i] = 0;
+
+    for (int i = 0; i < NUM_JOGOS_ATUAIS-1; i++) {
+        int repetidos = 0;
+        int *numerosJogoAnterior = new int[15];
+        int *numerosSorteados = new int[15];
+
+        file >> lixo >> lixo;
+        for (int j = 0; j < 15; j++)
+            file >> numerosJogoAnterior[j];
+
+        file >> lixo >> lixo;
+        for (int j = 0; j < 15; j++)
+            file >> numerosSorteados[j];
+
+        for (int k = 0; k < 15; k++) {
+            for (int l = 0; l < 15; l++) {
+                if (numerosSorteados[k] == numerosJogoAnterior[l])
+                    repetidos++;
+            }
+        }
+
+        // int indice = 15-repetidos;
+        // cout << "Índice: " << indice << endl;
+        proporcoes[15-repetidos]++;
+    }
+
+    /*  Print resultados. */
+    double media = 0, resultado = 0;
+    cout << "\n";
+    for (int i = 0; i < 11; i++) {
+        resultado = proporcoes[i];
+        media = resultado/NUM_JOGOS_ATUAIS;
+        cout << "A proporção de " << 15-i << " repetidos e " << i << " não repetidos aparece " << proporcoes[i] << " vezes. (" << media*100 << "%)\n";
+    }
+    file.close();
+}
+
+void Lotofacil::testaRepeticaoNumerosMultiplos()
+{
+    ifstream file;
+    file.open("dados/lotofacilOrdenada.txt");
+
+    /*  Múltiplos de 3 = 3, 6, 9, 12, 15, 18, 21, 24.
+        Múltiplos de 4 = 4, 8, 12, 16, 20, 24.
+        Múltiplos de 5 = 5, 10, 15, 20, 25.
+        Múltiplos de 6 = 6, 12, 18.
+        Múltiplos de 7 = 7, 14, 21.   */
+
+    int *multiplos = new int[5];
+    int *multiplosNoMesmoJogo = new int[5];
+    string lixo;
+
+    for (int i = 0; i < 5; i++) {
+        multiplos[i] = 0;
+        multiplosNoMesmoJogo[i] = 0;
+    }
+
+    for (int i = 0; i < NUM_JOGOS_ATUAIS; i++) {
+        int *numerosSorteados = new int[15];
+
+        file >> lixo >> lixo;
+
+        for (int j = 0; j < 15; j++)
+            file >> numerosSorteados[j];
+
+        int mult3 = 0, mult4 = 0, mult5 = 0, mult6 = 0, mult7 = 0;
+        for (int k = 0; k < 15; k++) {
+            if (numerosSorteados[k] % 3 == 0) {
+                multiplos[0]++;
+            }
+            if (numerosSorteados[k] % 4 == 0) {
+                multiplos[1]++;
+                mult4++;
+            }
+            if (numerosSorteados[k] % 5 == 0) {
+                multiplos[2]++;
+                mult5++;
+            }
+            if (numerosSorteados[k] % 6 == 0) {
+                multiplos[3]++;
+                mult6++;
+            }
+            if (numerosSorteados[k] % 7 == 0) {
+                multiplos[4]++;
+                mult7++;
+            }
+        }
+
+    }
+    /*  Print resultados. */
+    double media = 0, resultado = 0;
+    cout << "\n";
+    for (int i = 0; i < 5; i++) {
+        resultado = multiplos[i];
+        media = resultado;
+        cout << "Em média, o número de vezes que múltiplos de " << i+3 << " aparecem em jogos é de (" << media << "%)\n";
+    }
+
+    file.close();
+}
+
+void Lotofacil::testaRepeticaoLinhas()
+{
+    ifstream file;
+    file.open("dados/lotofacilOrdenada.txt");
+
+    int *linhas = new int[5];
+    string lixo;
+
+    for (int i = 0; i < NUM_JOGOS_ATUAIS; i++) {
+        int *numerosSorteados = new int[15];
+
+        file >> lixo >> lixo;
+
+        for (int j = 0; j < 15; j++) {
+            file >> numerosSorteados[j];
+
+            if (numerosSorteados[j] < 6)
+                linhas[0]++;
+            if (numerosSorteados[j] > 5 && numerosSorteados[j] < 11)
+                linhas[1]++;
+            if (numerosSorteados[j] > 10 && numerosSorteados[j] < 16)
+                linhas[2]++;
+            if (numerosSorteados[j] > 15 && numerosSorteados[j] < 21)
+                linhas[3]++;
+            if (numerosSorteados[j] > 20 && numerosSorteados[j] < 25)
+                linhas[4]++;
+        }
+    }
+
+    /*  Print resultados. */
+    double media = 0, resultado = 0;
+    cout << "\n";
+    for (int i = 0; i < 5; i++) {
+        resultado = linhas[i];
+        media = resultado/NUM_JOGOS_ATUAIS;
+        cout << "Em média, a quantidade de número que aparecem na linha " << i+1 << " é de (" << media << "%)\n";
+    }
+
+    file.close();
+}
+
+
+void Lotofacil::testaSistemaDePorcentagem()
+{
+    structures::LinkedList<Game*> *listaJogosSelecionados = new structures::LinkedList<Game*>();
+    // structures::LinkedList<int> *listaEntre6e10Jogos = new structures::LinkedList<int>();
+
+    int *listaAntes5Jogos = new int[25];
+    int *listaEntre6e10Jogos = new int[25];
+    int *contagem = new int[25];
+
+    for (int i = 0; i < 25; i++) {
+        listaAntes5Jogos[i] = 0;
+        listaEntre6e10Jogos[i] = 0;
+        contagem[i] = i+1;
+    }
+
+
+    for (int i = 495; i < 500; i++) {
+        for (int j = 0; j < 15; j++) {
+            for (int k = 0; k < 25; k++) {
+                if (listaJogosSorteados->at(i)->getNumerosSorteados()[j] == contagem[k]) {
+                    listaAntes5Jogos[k]++;
+                    break;
+                }
+            }
+        }
+    }
+
+
+    for (int i = 490; i < 495; i++) {
+        for (int j = 0; j < 15; j++) {
+            for (int k = 0; k < 25; k++) {
+                if (listaJogosSorteados->at(i)->getNumerosSorteados()[j] == contagem[k]) {
+                    listaEntre6e10Jogos[k]++;
+                    break;
+                }
+            }
+        }
+    }
+
+    /* Print */
+    cout << "Antes de 5 Jogos - Entre 6 e 10 Jogos\n";
+    for (int i = 0; i < 25; i++) {
+        cout << i << ". " << listaAntes5Jogos[i] << " - " << listaEntre6e10Jogos[i] << "\n";
+    }
+    cout << "\n";
+
+    int *jogo = new int[15];
+    int count = 0;
+    for (int i = 0; i < 25; i++) {
+        if (listaAntes5Jogos[i] > listaEntre6e10Jogos[i]) {
+            jogo[count] = i+1;
+            count++;
+        }
+    }
+
+    if (count < 15) {
+        for (int i = 0; count < 15; i++) {
+            if (listaAntes5Jogos[i] == listaEntre6e10Jogos[i]) {
+                jogo[count] = i+1;
+                count++;
+            }
+        }
+    }
+
+    Date *date = new Date();
+    Game *game = new Game(1, jogo, date);
+
+    listaJogosSelecionados->push_back(game);
+
+    cout << verificaTaxaAcerto(listaJogosSelecionados, 500) << "%.\n";
+
+    cout << "Jogo selecionado: ";
+    for (int i = 0; i < 15; i++) {
+        cout << jogo[i] << " ";
+    }
+
+
+}
+
+
+void Lotofacil::testaSistemaLotofacil(int rodadaVerificacao)
+{
+    int *dezenasJogoAnterior = new int[15];
+    int *dezenasQueNaoSairamNoJogoAnterior = new int[10];
+    int *dezenasQueMaisCairamJogoAnterior = new int[25];
+    int *noveDezenasSelecionadas = new int[25];
+
+    for (int i = 0; i < 15; i++) {
+        dezenasJogoAnterior[i] = listaJogosSorteados->at(rodadaVerificacao-2)->getNumerosSorteados()[i];
+    }
+
+    // int count = 0;
+    // for (int i = 0; count < 10 || i < 25; i++) {
+    //     for (int j = 0; j < 15; j++) {
+    //         if (dezenasJogoAnterior[j] != i+1) {
+    //             dezenasQueNaoSairamNoJogoAnterior[count] = i+1;
+    //             count++;
+    //             break;
+    //         }
+    //     }
+    // }
+
+    /* TESTE */
+    bool repetido = false;
+    int count = 0;
+    for (int i = 0; count < 10; i++) {
+        for (int j = 0; j < 15; j++) {
+            if (i+1 == dezenasJogoAnterior[j]) {
+                repetido = true;
+                break;
+            }
+        }
+        if (!repetido) {
+            dezenasQueNaoSairamNoJogoAnterior[count] = i+1;
+            count++;
+        }
+        repetido = false;
+    }
+
+    /*  Print dezenas jogo anterior. */
+    cout << "Dezenas jogo anterior: ";
+    for (int i = 0; i < 15; i++)
+        cout << dezenasJogoAnterior[i] << " ";
+
+    cout << "\nDezenas que não aparecem no jogo anterior: ";
+    for (int i = 0; i < 10; i++)
+        cout << dezenasQueNaoSairamNoJogoAnterior[i] << " ";
+
+    for (int i = 0; i < 25; i++)
+        dezenasQueMaisCairamJogoAnterior[i] = 0;
+
+    for (int i = rodadaVerificacao-11; i < rodadaVerificacao; i++) {
+        for (int j = 0; j < 15; j++) {
+            dezenasQueMaisCairamJogoAnterior[listaJogosSorteados->at(i)->getNumerosSorteados()[j]-1]++;
+        }
+    }
+
+    for (int i = 0; i < 9; i++) {
+        int maior = 0, indice = 0;
+        for (int j = 0; j < 25; j++) {
+            if (dezenasQueMaisCairam[j] > maior) {
+                maior = dezenasQueMaisCairam[j];
+                indice = j;
+            }
+        }
+        dezenasQueMaisCairam[indice] = 0;
+        noveDezenasSelecionadas[indice] = maior;
+    }
+
+    for (int i = 0; i < 25; i++)
+        cout << i+1 << ". " << noveDezenasSelecionadas[i] << "\n";
+
+    // int aux = 0;
+    // for (int i = 0; i < 15; i++) {
+    //     for (int j = i+1; j < 15; j++) {
+    //         if (dezenasQueMaisCairam[i] < dezenasQueMaisCairam[j]) {
+    //             aux = dezenasQueMaisCairam[i];
+    //             dezenasQueMaisCairam[i] = dezenasQueMaisCairam[j];
+    //             dezenasQueMaisCairam[j] = aux;
+    //         }
+    //
+    //     }
+    // }
 }

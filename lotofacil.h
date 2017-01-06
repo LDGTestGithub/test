@@ -63,6 +63,18 @@ public:
 
     void testaEstrategiaDiferencaMediaEMaiorSequenciaFalha(int rodadaVerificacao, int numRodadas, int numJogos);
 
+    void testaProporcaoParesImpares();
+
+    void testaProporcaoRepetidosNaoRepetidos();
+
+    void testaRepeticaoNumerosMultiplos();
+
+    void testaRepeticaoLinhas();
+
+    void testaSistemaDePorcentagem();
+
+    void testaSistemaLotofacil(int rodadaVerificacao);
+
 private:
     double estrategiaDiferencaMediaEMaiorSequenciaFalha(int rodadaVerificacao, int numJogos);
 

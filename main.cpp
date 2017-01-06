@@ -5,12 +5,19 @@ int main()
     Lotofacil *lotofacil = new Lotofacil();
 
     lotofacil->leJogosSorteados();
-    lotofacil->lePossiveisJogos();
-    lotofacil->escreveAcertos();
+    // lotofacil->lePossiveisJogos();
+    // lotofacil->escreveAcertos();
+    //
+    //
+    // // lotofacil->testaEstrategiaDiferencaMedia(1000, 10, 10);
+    // lotofacil->testaEstrategiaDiferencaMediaEMaiorSequenciaFalha(1000, 10, 5);
 
-
-    // lotofacil->testaEstrategiaDiferencaMedia(1000, 10, 10);
-    lotofacil->testaEstrategiaDiferencaMediaEMaiorSequenciaFalha(1000, 10, 5);
+    // lotofacil->testaProporcaoParesImpares();
+    // lotofacil->testaProporcaoRepetidosNaoRepetidos();
+    // lotofacil->testaRepeticaoNumerosMultiplos();
+    // lotofacil->testaRepeticaoLinhas();
+    // lotofacil->testaSistemaDePorcentagem();
+    lotofacil->testaSistemaLotofacil(500);
 
     delete lotofacil;
 
